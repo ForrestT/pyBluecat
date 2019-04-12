@@ -3,7 +3,7 @@ import argparse
 import json
 import logging
 import os
-import proteus
+import pybluecat
 from ipaddress import ip_address, ip_network
 from shutil import copyfile
 from sys import exit
@@ -52,13 +52,13 @@ def main():
     logger.propagate = False
 
     # Handle loading of credentials
-    creds = proteus.get_creds(args.creds)
+    creds = pybluecat.get_creds(args.creds)
     hostname = creds['hostname']
     username = creds['username']
     password = creds['password']
 
     # Instantiate Bluecat REST Client
-    bam = proteus.RESTClient(hostname, username, password)  # , loglevel=args.loglevel)
+    bam = pybluecat.BAM(hostname, username, password)  # , loglevel=args.loglevel)
 
     # Normalizing Arguments due to Rundeck requirements
     if args.ip == '':

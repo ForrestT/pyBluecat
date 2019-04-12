@@ -2,7 +2,7 @@
 import argparse
 import json
 import logging
-import proteus
+import pybluecat
 from ipaddress import ip_address, ip_network
 from sys import exit
 
@@ -56,8 +56,8 @@ def main():
         logging.basicConfig(level=level)
 
     hostname = args.hostname.lower()
-    creds = proteus.get_creds(args.creds)
-    c = proteus.RESTClient(creds['hostname'], creds['username'], creds['password'])
+    creds = pybluecat.get_creds(args.creds)
+    c = pybluecat.BAM(creds['hostname'], creds['username'], creds['password'])
 
     # Get Networks List
     if args.network:

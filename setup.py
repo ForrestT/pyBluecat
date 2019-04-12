@@ -6,7 +6,7 @@ def readme():
         return f.read()
 
 setup(
-        name='proteus',
+        name='pybluecat',
         version='0.0.1',
         description='Python wrapper around Bluecat APIs',
         long_description=readme(),
@@ -21,33 +21,26 @@ setup(
         author_email='fmthroesch@gmail.com',
         license='Freely Distributable',
         packages=[
-            'proteus',
-            'proteus.tools',
-            'proteus.data'
+            'pybluecat',
+            'pybluecat.tools',
+            'pybluecat.data'
         ],
         entry_points={
             'console_scripts': [
-                'proteus=proteus.tools.cli:main',
-                'proteus-assinv-search=proteus.tools.assinv_search:main',
-                'proteus-dhcp-request=proteus.tools.rundeck_dhcp_request:main',
-                'proteus-dhcp-bulk-request=proteus.tools.rundeck_dhcp_bulk_request:main',
-                'proteus-dhcp-update=proteus.tools.rundeck_dhcp_update:main',
-                'proteus-dhcp-delete=proteus.tools.rundeck_dhcp_delete:main',
-                'proteus-dhcp-search=proteus.tools.rundeck_dhcp_search:main',
-                'proteus-vip-request=proteus.tools.vips:main',
-                'proteus-search=proteus.tools.search:main',
-                'proteus-network-enumerate=proteus.tools.enumerate_networks:main',
-                'proteus-static-request=proteus.tools.static_request:main'
+                'bluecat=pybluecat.tools.cli:main',
+                'bluecat-assinv-search=pybluecat.tools.assinv_search:main',
+                'bluecat-dhcp-request=pybluecat.tools.rundeck_dhcp_request:main',
+                'bluecat-dhcp-bulk-request=pybluecat.tools.rundeck_dhcp_bulk_request:main',
+                'bluecat-dhcp-update=pybluecat.tools.rundeck_dhcp_update:main',
+                'bluecat-dhcp-delete=pybluecat.tools.rundeck_dhcp_delete:main',
+                'bluecat-dhcp-search=pybluecat.tools.rundeck_dhcp_search:main',
+                'bluecat-vip-request=pybluecat.tools.vips:main',
+                'bluecat-search=pybluecat.tools.search:main',
+                'bluecat-network-enumerate=pybluecat.tools.enumerate_networks:main',
+                'bluecat-static-request=pybluecat.tools.static_request:main'
             ]
         },
-        scripts=[
-            'bin/proteus-dhcp-from-list',
-            'bin/proteus-search-mac',
-            'bin/proteus-static-delete',
-            'bin/proteus-static-from-list',
-        ],
         install_requires=[
-            'suds',
             'dnspython'
         ],
         zip_safe=False)

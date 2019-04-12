@@ -4,12 +4,12 @@ import json
 import logging
 from data import *
 from ipaddress import ip_address, ip_network
-from proteus import data as DATA
-from proteus.exceptions import BluecatError
+from pybluecat import data as DATA
+from pybluecat.exceptions import BluecatError
 from time import sleep
 
 
-class RESTClient:
+class BAM:
     """About the Bluecat REST API:
     REST APIs have many similarities with the widely used SOAP-based APIs supported by Address
     Manager. However, there are a few differences between REST interface and existing SOAP
@@ -38,7 +38,7 @@ class RESTClient:
         self.history = []
         self.lastCall = None
         self.loglevel = loglevel
-        self.logger = self.set_loglevel('proteus', loglevel)
+        self.logger = self.set_loglevel('pybluecat', loglevel)
         self.py_logger = self.set_loglevel('py.warnings', loglevel)
         self.session = self.init_session()
         self.baseUrl = 'https://{h}/Services/REST/v1/'.format(h=hostname)
@@ -572,11 +572,11 @@ if __name__ == "__main__":
         level = getattr(logging, args.loglevel.upper())
         logging.basicConfig(level=level)
     # Prove that client works
-    c = RESTClient('proteus.spectrum-health.org', creds['username'], creds['password'], loglevel=args.loglevel)
+    c = BAM(creds['hostname'], creds['username'], creds['password'], loglevel=args.loglevel)
     net = c.get_network_by_ip('10.168.128.0')
     roles = c.get_deployment_roles(net['id'])
     r = c.get_next_ip_address(net['id'], offset='10.168.128.100')
-    r = c.assign_next_ip_address(net['id'], 'Forrest-offset-testing', offset='10.168.128.100')
+    r = c.assign_next_ip_address(net['id'], 'offset-testing', offset='10.168.128.100')
     r = c.get_ip_address('10.97.12.69')
     c.logout()
     print(c.history)

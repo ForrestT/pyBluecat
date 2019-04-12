@@ -2,7 +2,7 @@
 import argparse
 import json
 import logging
-import proteus
+import pybluecat
 from ipaddress import ip_address, ip_network
 from sys import exit
 
@@ -43,7 +43,7 @@ def main():
     mac = args.mac_addr.replace('.', '').replace(':', '').replace('-', '')
     ip = ip_address(unicode(args.ip_addr))
     action = 'MAKE_DHCP_RESERVED'
-    creds = proteus.get_creds(args.creds)
+    creds = pybluecat.get_creds(args.creds)
     properties = {
         'Location': args.location,
         'Notes': args.notes,
@@ -60,19 +60,19 @@ def main():
     error_message = ''
 
     # Create instance using 'with' so cleanup of session is automatic
-    with proteus.RESTClient(**creds) as bam:
+    with pybluecat.BAM(**creds) as bam:
         # Determine the Network of the IP Address
         try:
             logger.info('Getting Network info from ip: {}'.format(str(ip)))
             net_entity = bam.get_network(str(ip))
-            net_obj = proteus.entity_to_json(net_entity)
+            net_obj = pybluecat.entity_to_json(net_entity)
             network = ip_network(unicode(net_obj['properties']['CIDR']))
             if network.prefixlen <= 24:
                 dhcp_offset_ip = str(network.network_address + 31)
             else:
                 dhcp_offset_ip = None
             logger.debug(json.dumps(net_obj, indent=2))
-        except proteus.exceptions.BluecatError as e:
+        except pybluecat.exceptions.BluecatError as e:
             logger.error('Could not determine the target network or network did not exist')
             exit(str(e))
 
@@ -101,7 +101,7 @@ def main():
             try:
                 logger.info('Getting current config for IP: {}'.format(str(ip)))
                 ip_entity = bam.get_ip_address(str(ip))
-                old_reservation = proteus.entity_to_json(ip_entity)
+                old_reservation = pybluecat.entity_to_json(ip_entity)
                 logger.debug(json.dumps(old_reservation, indent=2, sort_keys=True))
                 if old_reservation['properties'] is None:
                     output_object = {
@@ -118,7 +118,7 @@ def main():
                 else:
                     response = bam.update_dhcp_reservation(old_reservation, hostname, mac, properties)
                     new_reservation = bam.get_ip_address(str(ip))
-                    new_reservation = proteus.entity_to_json(new_reservation)
+                    new_reservation = pybluecat.entity_to_json(new_reservation)
                     logger.debug(json.dumps(old_reservation, indent=2, sort_keys=True))
                     output_object = {
                         'status': 'Reservation Updated Successfully',
@@ -127,7 +127,7 @@ def main():
                         'new_reservation': new_reservation
                     }
                     deploy_needed = True
-            except proteus.exceptions.BluecatError as e:
+            except pybluecat.exceptions.BluecatError as e:
                 output_object = {
                     'status': 'Error Occurred during Update',
                     'message': e.message

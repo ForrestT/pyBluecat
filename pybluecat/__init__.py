@@ -1,8 +1,6 @@
 import json
 import os
-from legacy import Proteus
-from soap_proteus import SOAPClient
-from rest_proteus import RESTClient
+from bam import BAM
 from exceptions import *
 
 

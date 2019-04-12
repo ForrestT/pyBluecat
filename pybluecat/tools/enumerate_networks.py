@@ -4,7 +4,7 @@
 from ipaddress import ip_address, ip_network
 import argparse
 import json
-import proteus
+import pybluecat
 import re
 import sys
 
@@ -72,7 +72,7 @@ def find_start_block(session, cidr, start_id):
     cidr = ip_network(unicode(cidr))
     top_blocks = session.get_entities(start_id, 'IP4Block', 0, 1000)
     for block in top_blocks:
-        block_cidr = proteus.prop_s2d(block['properties'])['CIDR']
+        block_cidr = pybluecat.prop_s2d(block['properties'])['CIDR']
         block_net = ip_network(block_cidr)
         if block_net.overlaps(cidr):
             if block_net == cidr:
@@ -137,9 +137,9 @@ def main():
         KW_WHITELIST = ['']
 
     # Get Credentials
-    creds = proteus.get_creds(args.creds)
+    creds = pybluecat.get_creds(args.creds)
     # Create the Bluecat sessions
-    with proteus.RESTClient('proteus', creds['username'], creds['password']) as c:
+    with pybluecat.BAM(creds['hostname'], creds['username'], creds['password']) as c:
         config = c.get_entity_by_name(0, 'Spectrum Health', 'Configuration')
         # Output headers if append flag not set
         if not args.append:

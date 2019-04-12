@@ -3,7 +3,7 @@ import argparse
 import csv
 import json
 import logging
-import proteus
+import pybluecat
 from ipaddress import ip_address, ip_network
 from sys import exit
 
@@ -34,7 +34,7 @@ def is_mac_in_use(mac, network, bam, logger):
         for entity in linked_entities:
             logging.debug('Entity: {}'.format(json.dumps(entity, indent=2, sort_keys=True)))
             if entity['type'] == 'IP4Address':
-                ip_obj = proteus.entity_to_json(entity)
+                ip_obj = pybluecat.entity_to_json(entity)
                 logger.debug(json.dumps(ip_obj, indent=2, sort_keys=True))
                 ip_obj_address = ip_address(unicode(ip_obj['properties']['address']))
                 # Break loop as soon as match is found, return the matched reservation
@@ -47,7 +47,7 @@ def is_mac_in_use(mac, network, bam, logger):
                     }
                     break
     # If MAC not found handle the error, otherwise exit script with error code 1
-    except proteus.exceptions.BluecatError as e:
+    except pybluecat.exceptions.BluecatError as e:
         if 'Object was not found' in e.message:
             logger.info('MAC address does not currently exist in Bluecat')
         else:
@@ -107,12 +107,12 @@ def main():
     # Initialize flow-control boolean vars
     deploy_needed = False
     action = 'MAKE_DHCP_RESERVED'
-    creds = proteus.get_creds(args.creds)
+    creds = pybluecat.get_creds(args.creds)
 
     # Create instance using 'with' so cleanup of session is automatic
     output_list = []
     server_set = set()
-    with proteus.RESTClient(**creds) as bam:
+    with pybluecat.BAM(**creds) as bam:
         for reservation in reservations:
             ip_is_eligible = False
             mac_already_reserved = False
@@ -134,14 +134,14 @@ def main():
             try:
                 logger.info('Getting Network info from ip: {}'.format(str(ip)))
                 net_entity = bam.get_network(str(ip))
-                net_obj = proteus.entity_to_json(net_entity)
+                net_obj = pybluecat.entity_to_json(net_entity)
                 network = ip_network(unicode(net_obj['properties']['CIDR']))
                 if network.prefixlen <= 24:
                     dhcp_offset_ip = str(network.network_address + 31)
                 else:
                     dhcp_offset_ip = None
                 logger.debug(json.dumps(net_obj, indent=2))
-            except proteus.exceptions.BluecatError as e:
+            except pybluecat.exceptions.BluecatError as e:
                 logger.error('Could not determine the target network or network did not exist')
                 exit(str(e))
 
@@ -165,7 +165,7 @@ def main():
                     try:
                         ip_id = bam.assign_ip_address(hostname, str(ip), mac, action, properties)
                         ip_entity = bam.get_entity_by_id(ip_id)
-                        ip_obj = proteus.entity_to_json(ip_entity)
+                        ip_obj = pybluecat.entity_to_json(ip_entity)
                         logger.info('Reservation for {} was successful'.format(ip_obj['properties']['address']))
                         logger.debug(json.dumps(ip_obj, indent=2, sort_keys=True))
                         desired_ip_reserved = True
@@ -176,12 +176,12 @@ def main():
                             'reservation': ip_obj
                         }
                     # Handle Bluecat errors, shouldn't see anything other than Dupes at this point
-                    except proteus.exceptions.BluecatError as e:
+                    except pybluecat.exceptions.BluecatError as e:
                         if 'Duplicate' in e.message:
                             error_message = 'Desired IP is already in Use'
                             logger.info(error_message)
                             ip_entity = bam.get_ip_address(str(ip))
-                            conflicting_ip = proteus.entity_to_json(ip_entity)
+                            conflicting_ip = pybluecat.entity_to_json(ip_entity)
                         elif 'already used by another IP within the same network' in e.message:
                             # Should've been caught earlier
                             error_message = e.message
@@ -197,7 +197,7 @@ def main():
                         try:
                             logger.info('Sending request to Bluecat to assign next available address in network: {}'.format(str(network)))
                             ip_entity = bam.assign_next_ip_address(net_obj['id'], hostname, mac, action, properties, dhcp_offset_ip)
-                            ip_obj = proteus.entity_to_json(ip_entity)
+                            ip_obj = pybluecat.entity_to_json(ip_entity)
                             logger.info('Reservation for {} was successful'.format(ip_obj['properties']['address']))
                             logger.debug(json.dumps(ip_obj, indent=2, sort_keys=True))
                             output_object = {
@@ -210,7 +210,7 @@ def main():
                             }
                             deploy_needed = True
                         # Expected errors here would be network out of addresses
-                        except proteus.exceptions.BluecatError as e:
+                        except pybluecat.exceptions.BluecatError as e:
                             output_object = {
                                 'status': 'Reservation could not be completed',
                                 'message': [

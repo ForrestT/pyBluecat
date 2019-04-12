@@ -3,14 +3,10 @@ import argparse
 import json
 import logging
 import os
-import proteus
+import pybluecat
 from ipaddress import ip_address, ip_network
 from shutil import copyfile
 from sys import exit
-
-
-HOSTNAME = 'proteus.spectrum-health.org'
-CREDPATH = os.path.expanduser('~') + '/.proteus'
 
 
 def search_ip(session, ip):
@@ -59,14 +55,10 @@ def main():
     args = parser.parse_args()
 
     # Handle loading of credentials
-    if args.creds:
-        copyfile(args.creds, CREDPATH)
-        logging.info('Copied {} to {}'.format(args.creds, CREDPATH))
-    with open(CREDPATH) as f:
-        creds = json.load(f)
-        username = creds['username']
-        password = creds['password']
-        logging.info('Loaded credentials from {}'.format(CREDPATH))
+    creds = pybluecat.get_creds(args.creds)
+    hostname = creds['hostname']
+    username = creds['username']
+    password = creds['password']
 
     # Enable logging if requested
     # if args.loglevel:
@@ -74,7 +66,7 @@ def main():
     #     logging.basicConfig(level=level)
 
     # Instantiate Bluecat REST Client
-    bam = proteus.RESTClient(HOSTNAME, username, password, loglevel=args.loglevel)
+    bam = pybluecat.BAM(hostname, username, password, loglevel=args.loglevel)
     r = bam.create_mac_address(args.mac, args.name, args.properties)
     print(json.dumps(r, indent=2))
 

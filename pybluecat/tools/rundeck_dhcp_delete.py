@@ -2,7 +2,7 @@
 import argparse
 import json
 import logging
-import proteus
+import pybluecat
 from ipaddress import ip_address, ip_network
 from sys import exit
 
@@ -90,7 +90,7 @@ def main():
             ip = ip_address(unicode(args.ip_addr))
     else:
         ip = None
-    creds = proteus.get_creds(args.creds)
+    creds = pybluecat.get_creds(args.creds)
     output_object = {
         'status': '',
         'message': [],
@@ -115,7 +115,7 @@ def main():
     deleted_reservations = []
 
     # Create instance using 'with' so cleanup of session is automatic
-    with proteus.RESTClient(**creds) as bam:
+    with pybluecat.BAM(**creds) as bam:
         # Get reservation matching the hostname, if given
         if hostname is not None:
             logger.info('Hostname provided ({}), searching for reservations'.format(hostname))
@@ -138,7 +138,7 @@ def main():
         # Determine which of the matched reservations qualify for deletion
         logger.info('Checking all gathered reservations for deletion eligibility')
         for reservation in candidate_reservations:
-            reservation = proteus.entity_to_json(reservation)
+            reservation = pybluecat.entity_to_json(reservation)
             # Skip NULL objects, can happen when MAC searches turn up nothing
             if reservation['properties'] is None:
                 logger.info('Ignoring NULL object')
@@ -177,10 +177,10 @@ def main():
             try:
                 logger.info('Getting Network info from ip: {}'.format(res_ip))
                 net_entity = bam.get_network(res_ip)
-                net_obj = proteus.entity_to_json(net_entity)
+                net_obj = pybluecat.entity_to_json(net_entity)
                 network = ip_network(unicode(net_obj['properties']['CIDR']))
                 logger.debug(json.dumps(net_obj, indent=2))
-            except proteus.exceptions.BluecatError as e:
+            except pybluecat.exceptions.BluecatError as e:
                 # This would be really odd... But try to continue with the other reservations
                 logger.error('Could not determine the target network or network did not exist')
                 logger.error(e.message)

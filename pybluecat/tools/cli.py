@@ -8,9 +8,9 @@ import logging
 import os
 import requests
 from ipaddress import ip_address, ip_network
-from proteus import RESTClient
-from proteus import data as DATA
-from proteus.exceptions import BluecatError
+from pybluecat import BAM
+from pybluecat import data as DATA
+from pybluecat.exceptions import BluecatError
 from time import sleep
 
 
@@ -34,7 +34,7 @@ def get_client(loglevel):
     hostname = creds['bluecat']['hostname']
     username = creds['bluecat']['username']
     password = creds['bluecat']['password']
-    bluecat = RESTClient(hostname, username, password, loglevel=loglevel)
+    bluecat = BAM(hostname, username, password, loglevel=loglevel)
     return bluecat
 
 
@@ -348,50 +348,50 @@ def add_bulk_operation_args(parser):
 
 
 def main():
-    # Main Argument Parser "proteus"
+    # Main Argument Parser "pybluecat"
     parser = argparse.ArgumentParser(prog='Bluecat Proteus CLI Tool')
     subparsers = parser.add_subparsers(title='Subcommands', help='subparsers command help')
 
-    ## "proteus" sub-parser: "static"
+    ## "pybluecat" sub-parser: "static"
     parser_static = subparsers.add_parser('static', help='static IP record manipulation')
     sub_static = parser_static.add_subparsers(title='Subcommands', help='options for static records')
-    ## "proteus" sub-parser: "dhcp"
+    ## "pybluecat" sub-parser: "dhcp"
     parser_dhcp = subparsers.add_parser('dhcp', help='dhcp IP record manipulation')
     sub_dhcp = parser_dhcp.add_subparsers(title='Subcommands', help='options for dhcp records')
-    ## "proteus" sub-parser: "search"
+    ## "pybluecat" sub-parser: "search"
     parser_search = subparsers.add_parser('search', help='search Proteus for Objects')
     sub_search = parser_search.add_subparsers(title='Subcommands', help='options for dhcp records')
 
-    ### proteus static create
+    ### pybluecat static create
     parser_static_create = sub_static.add_parser('create', help='create a static IP reservation')
     add_single_operation_args(parser_static_create)
 
-    ### proteus static delete
+    ### pybluecat static delete
     parser_static_delete = sub_static.add_parser('delete', help='delete a static IP reservation')
     add_single_operation_args(parser_static_delete)
 
-    ### proteus static update
+    ### pybluecat static update
     parser_static_update = sub_static.add_parser('update', help='update a static IP reservation')
     add_single_operation_args(parser_static_update)
 
-    ### proteus static bulk
+    ### pybluecat static bulk
     parser_static_bulk = sub_static.add_parser('bulk', help='create bulk static records from csv')
     add_bulk_operation_args(parser_static_bulk)
 
-    ### proteus dhcp create
+    ### pybluecat dhcp create
     parser_dhcp_create = sub_dhcp.add_parser('create', help='create a dhcp IP reservation')
     add_dhcp_single_operation_args(parser_dhcp_create)
     parser_dhcp_create.set_defaults(func=create_dhcp)
 
-    ### proteus dhcp delete
+    ### pybluecat dhcp delete
     parser_dhcp_delete = sub_dhcp.add_parser('delete', help='delete a dhcp IP reservation')
     add_dhcp_single_operation_args(parser_dhcp_delete)
 
-    ### proteus dhcp update
+    ### pybluecat dhcp update
     parser_dhcp_update = sub_dhcp.add_parser('update', help='update a dhcp IP reservation')
     add_dhcp_single_operation_args(parser_dhcp_update)
 
-    ### proteus dhcp bulk
+    ### pybluecat dhcp bulk
     parser_dhcp_bulk = sub_dhcp.add_parser('bulk', help='create bulk dhcp records from csv')
     add_bulk_operation_args(parser_dhcp_bulk)
     parser_dhcp_bulk.set_defaults(func=handle_dhcp_bulk)
@@ -401,7 +401,7 @@ def main():
 
     # Setup Proteus-CLI logger
     global logger
-    logger = logging.getLogger('proteus-cli')
+    logger = logging.getLogger('pybluecat-cli')
     loglevel = args.loglevel.upper()
     if loglevel in ['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG']:
         level = getattr(logging, loglevel)
