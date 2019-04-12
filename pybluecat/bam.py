@@ -385,7 +385,7 @@ class BAM:
         else:
             dhcp_offset = 31
         mask = int(net1.netmask) ^ 2**32-1  # mask to determine ip's place in network
-        # Ensure Hostname doesn't already exist in Proteus
+        # Ensure Hostname doesn't already exist in BAM
         found_ip = False
         response1 = self.get_entity_by_name(bam_net_1['id'], hostname1, 'IP4Address')
         response2 = self.get_entity_by_name(bam_net_2['id'], hostname2, 'IP4Address')

@@ -1,4 +1,4 @@
-# Bluecat Proteus API Wrapper #
+# Bluecat BAM API Wrapper #
 
 ## Installation ##
 
@@ -8,8 +8,8 @@ You can clone the repo, change to the top-level directory (with the setup.py fil
 
 ```bash
 git clone https://github.com/ForrestT/pyBluecat.git
-cd proteus
-pip install -e .
+cd pybluecat
+pip install --user .
 ```
 - - - -
 ## How to Use ##
@@ -17,28 +17,28 @@ pip install -e .
 The library can be used within python
 
 ```python
-from proteus import RESTClient  
+import pybluecat
 
-c = RESTClient(hostname, username, password)  
+bam = pybluecat.BAM(hostname, username, password)  
 
-network_obj = c.get_network('10.97.12.0')
+network_obj = bam.get_network('10.97.12.0')
 
-ip_obj = c.get_ip_address('10.97.12.101')
+ip_obj = bam.get_ip_address('10.97.12.101')
 
-c.logout()
+bam.logout()
 ```
 In an interactive python interpreter, use help() to play with the available methods
 ```python
->>> from proteus import RESTClient
->>> help(RESTClient)
+>>> from pybluecat import BAM
+>>> help(BAM)
 ```
 
 You can also just use the CLI scripts interactively (use -h, --help)
 
 ```bash
-proteus --help
+bluecat --help
 
-    usage: Bluecat Proteus CLI Tool [-h] {static,dhcp,search} ...
+    usage: Bluecat CLI Tool [-h] {static,dhcp,search} ...
 
     optional arguments:
       -h, --help            show this help message and exit
@@ -47,12 +47,12 @@ proteus --help
       {static,dhcp,search}  subparsers command help
         static              static IP record manipulation
         dhcp                dhcp IP record manipulation
-        search              search Proteus for Objects
+        search              search BAM for Objects
 
 # Create a DHCP reservation
-proteus dhcp create <hostname> <mac> --network <networkAddress> --creds /location/of/creds.json
+bluecat dhcp create <hostname> <mac> --network <networkAddress> --creds /location/of/creds.json
 
 # Delete a STATIC IP reservation
-proteus static delete <ipAddress>
+bluecat static delete <ipAddress>
 ```
 

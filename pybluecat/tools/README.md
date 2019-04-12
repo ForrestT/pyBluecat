@@ -1,5 +1,5 @@
 <a name="top"></a>
-# Proteus Tools
+# BAM Tools
 
 |Script|Entrypoint|Description|
 |---|---|---|

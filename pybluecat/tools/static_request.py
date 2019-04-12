@@ -124,7 +124,7 @@ def main():
             else:
                 break
         # If an existing IP has not been found yet, start working through
-        # every free IP in the Proteus Network until one is assigned or net is
+        # every free IP in the BAM Network until one is assigned or net is
         # exhausted
         if not foundIP:
             logging.info('Determining next available IP Address')
@@ -134,21 +134,21 @@ def main():
                 if ipObj['id'] == 0:
                     break
                 ipObj = c.entity_to_json(ipObj)
-                logging.info('IP Address free in Proteus: {}'.format(ipObj['properties']['address']))
-                # Check if IP has existing PTR record, if True, write it to Proteus, try next IP
+                logging.info('IP Address free in BAM: {}'.format(ipObj['properties']['address']))
+                # Check if IP has existing PTR record, if True, write it to BAM, try next IP
                 ptr = dns_PTR_exists(ipObj['properties']['address'])
                 if ptr:
                     logging.info('PTR Record found for Address: {}'.format(ptr))
                     ipObj['name'] = ptr.split('.')[0]
                     ipObj = c.json_to_entity(ipObj)
                     c.update(ipObj)
-                # Try to Ping the IP address, if response, log in Proteus, try next IP
+                # Try to Ping the IP address, if response, log in BAM, try next IP
                 elif ping(ipObj['properties']['address']):
                     logging.info('Address responded to ping')
                     ipObj['name'] = 'IN-USE: something pinged'
                     ipObj = c.json_to_entity(ipObj)
                     c.update(ipObj)
-                # Finally, reserve the IP in Proteus for the hostname
+                # Finally, reserve the IP in BAM for the hostname
                 else:
                     logging.info('Address doesn\'t ping or have PTR record')
                     foundIP = True

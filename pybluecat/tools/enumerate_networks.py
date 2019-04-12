@@ -1,5 +1,5 @@
 #!/usr/bin/python
-"""Walk Proteus and output all subnets and associated info
+"""Walk BAM and output all subnets and associated info
 """
 from ipaddress import ip_address, ip_network
 import argparse

@@ -349,7 +349,7 @@ def add_bulk_operation_args(parser):
 
 def main():
     # Main Argument Parser "pybluecat"
-    parser = argparse.ArgumentParser(prog='Bluecat Proteus CLI Tool')
+    parser = argparse.ArgumentParser(prog='Bluecat BAM CLI Tool')
     subparsers = parser.add_subparsers(title='Subcommands', help='subparsers command help')
 
     ## "pybluecat" sub-parser: "static"
@@ -359,7 +359,7 @@ def main():
     parser_dhcp = subparsers.add_parser('dhcp', help='dhcp IP record manipulation')
     sub_dhcp = parser_dhcp.add_subparsers(title='Subcommands', help='options for dhcp records')
     ## "pybluecat" sub-parser: "search"
-    parser_search = subparsers.add_parser('search', help='search Proteus for Objects')
+    parser_search = subparsers.add_parser('search', help='search BAM for Objects')
     sub_search = parser_search.add_subparsers(title='Subcommands', help='options for dhcp records')
 
     ### pybluecat static create
@@ -399,7 +399,7 @@ def main():
     # Parse the args from any and all parsers
     args = parser.parse_args()
 
-    # Setup Proteus-CLI logger
+    # Setup BAM-CLI logger
     global logger
     logger = logging.getLogger('pybluecat-cli')
     loglevel = args.loglevel.upper()

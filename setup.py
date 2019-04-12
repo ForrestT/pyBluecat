@@ -7,7 +7,7 @@ def readme():
 
 setup(
         name='pybluecat',
-        version='0.0.1',
+        version='0.1.0',
         description='Python wrapper around Bluecat APIs',
         long_description=readme(),
         classifiers=[
