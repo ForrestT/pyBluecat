@@ -1,0 +1,77 @@
+#!/usr/bin/python
+import argparse
+import json
+import requests
+from proteus import SOAPClient
+from time import sleep
+
+parser = argparse.ArgumentParser()
+parser.add_argument('filename', help='filename')
+parser.add_argument('-d', '--dns', action='store_true')
+parser.add_argument('-c', '--creds', help='path to file containing credentials')
+args = parser.parse_args()
+
+with open(args.filename, 'r') as f:
+    # build two-dimensional array from csv values
+    reservations = [line.strip().split(',') for line in f.readlines()]
+# Read in creds file
+with open(args.creds) as f:
+    creds = json.load(f)
+# Eliminate headers if present
+if 'hostname' in reservations[0][0].lower():
+    reservations.pop(0)
+# Get down to business
+c = SOAPClient(creds['username'], creds['password'])
+dnsList = []
+for entry in reservations:
+    hostname = entry[0].lower()
+    netAddr = entry[1]
+    print(hostname, netAddr)
+    # Get Network Object and set dhcp_offset based on CIDR
+    netObj = c.getIP4Network(netAddr)
+    if int(netObj['properties']['CIDR'][-2:]) > 24:
+        dhcp_offset = 0
+    else:
+        dhcp_offset = 30
+    # Check to see if IP reservation already exists
+    response = c.getEntityByName(netObj['id'], hostname, 'IP4Address')
+    if response['properties'] is not None:
+        properties = c.propertiesStringToDict(response['properties'])
+        ipObj = c.getIP4Address(properties['address'])
+        print(json.dumps(ipObj, sort_keys=True, indent=4))
+        dnsList.append((hostname, properties['address']))
+    # If no existing reservation, time to make one
+    else:
+        # Get Next Available IP Address in Subnet
+        ipAddr = c.getNextIP4Address(netObj, offset=dhcp_offset)
+        if ipAddr is None:
+            print("Server raised fault: 'Network {net} is out of DHCP address space. No reservation for {host}'".format(
+                net=netAddr, host=hostname))
+        # Address was found, Assign the address
+        else:
+            try:
+                ipObj = c.assignIP4Address(hostname, ipAddr)
+                print(json.dumps(ipObj, sort_keys=True, indent=4))
+                dnsList.append((hostname, ipAddr))
+            except Exception as e:
+                print(str(e))
+c.logout()
+
+# If specified, make DNS records
+if args.dns:
+    # Set the URL
+    jobID = '54395c2c-a819-451e-b599-c9ae9a184481'
+    url = 'https://rundeck.spectrum-health.org:4443/api/15/job/{}/run'.format(jobID)
+    apiKey = creds['rundeckapikey']  # 'EaSozabzA9D1It0IuttMO7xHrq4FLrwO'
+    params = {
+        'format': 'json',
+        'authtoken': apiKey
+    }
+    # Loop through list, creating DNS record for every host
+    for host in dnsList:
+        body = {
+            "argString": "-IPAddress {} -RecordToAdd {}".format(host[1], host[0])
+        }
+        response = requests.post(url, json=body, params=params)
+        print(host[0], response.status_code, response.text)
+        sleep(2)

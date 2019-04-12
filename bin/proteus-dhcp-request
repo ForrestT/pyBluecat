@@ -1,0 +1,37 @@
+#!/usr/bin/python
+import argparse
+import json
+from proteus import SOAPClient
+
+parser = argparse.ArgumentParser()
+parser.add_argument('hostname', help='hostname')
+parser.add_argument('mac_addr', help='MAC Address')
+parser.add_argument('network', help='network address within desired subnet')
+parser.add_argument('creds', help='path to file containing credentials')
+parser.add_argument('-m', '--monitordeployment', action='store_true',
+                    help='if set, script will follow deployment progress')
+parser.add_argument('--nodeploy', action='store_true', help='Do NOT deploy saved changes')
+args = parser.parse_args()
+
+with open(args.creds) as f:
+    creds = json.load(f)
+hostname = args.hostname
+mac = args.mac_addr.replace('.', '').replace(':', '').replace('-', '')
+network = args.network
+
+c = SOAPClient(creds['username'], creds['password'])
+netObj = c.getIP4Network(network)
+ipAddr = c.getNextIP4Address(netObj)
+ipObj = c.assignIP4Address(hostname, ipAddr, mac, action='MAKE_DHCP_RESERVED')
+
+print(json.dumps(ipObj, indent=2, sort_keys=True))
+
+# Do NOT deploy changes if arg is set
+if not args.nodeploy:
+    c.queueServers(netObj)
+    c.deployQueuedServers()
+    if args.monitordeployment:
+        c.monitorServerDeployment()
+else:
+    print('MAC Reservation created, but change not deployed.')
+c.logout()

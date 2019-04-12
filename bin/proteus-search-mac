@@ -1,0 +1,26 @@
+#!/usr/bin/python
+import argparse
+import json
+from proteus import SOAPClient
+
+parser = argparse.ArgumentParser()
+parser.add_argument('mac_addr', help='MAC Address')
+parser.add_argument('creds', help='path to file containing credentials')
+args = parser.parse_args()
+
+with open(args.creds) as f:
+    creds = json.load(f)
+
+c = SOAPClient(creds['username'], creds['password'])
+
+mac_addr = args.mac_addr.replace('.', '').replace(':', '').replace('-', '')
+
+try:
+    mac_entity = c.getMACAddress(mac_addr)
+    results = c.getLinkedEntities(mac_entity['id'])
+    for result in results:
+        print(result)
+except:
+    print("MAC Address not found")
+
+c.logout()
