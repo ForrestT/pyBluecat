@@ -2,9 +2,9 @@
 import requests
 import json
 import logging
-from data import *
 from ipaddress import ip_address, ip_network
 from pybluecat import data as DATA
+from pybluecat.data import *
 from pybluecat.exceptions import BluecatError
 from time import sleep
 

@@ -1,7 +1,7 @@
 import json
 import os
-from bam import BAM
-from exceptions import *
+from pybluecat.bam import BAM
+from pybluecat.exceptions import *
 
 
 def get_creds(filepath=None):

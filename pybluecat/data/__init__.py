@@ -1,6 +1,6 @@
-import const
-import helpers
-from defs import *
+import pybluecat.data.const
+import pybluecat.data.helpers
+from pybluecat.data.defs import *
 
 
 DEPLOYMENT_STATUS = {

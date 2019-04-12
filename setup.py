@@ -7,12 +7,13 @@ def readme():
 
 setup(
         name='pybluecat',
-        version='0.1.0',
+        version='0.1.1',
         description='Python wrapper around Bluecat APIs',
         long_description=readme(),
         classifiers=[
             'Development Status :: 3 - Alpha',
             'Programming Language :: Python :: 2.7',
+            'Programming Language :: Python :: 3.6',
             'License :: Freely Distributable',
             'Natural Language :: English',
         ],

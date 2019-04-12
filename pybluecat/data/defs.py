@@ -1,5 +1,5 @@
 #!/usr/bin/python
-from helpers import *
+from pybluecat.data.helpers import *
 
 
 class APIEntity(object):
