@@ -305,6 +305,18 @@ class BAM:
     def get_dhcp_scope_by_ip(self, netAddr):
         return self.get_ip_ranged_by_ip(self.config['id'], netAddr, 'DHCP4Range')
 
+    @rest_call('post')
+    def assign_ipv4network(self, parentId, cidr, properties_dict):
+        method = 'addIP4Network'
+        properties = '|'.join('{}={}'.format(key, val) for key, val in properties_dict.items())
+        params = {
+            'blockId': parentId,
+            'CIDR': cidr,
+            'properties': properties
+        }
+        data = None
+        return method, params, data
+
     ################################################################
     # IP ADDRESS STUFF
     ################################################################
@@ -556,6 +568,7 @@ class BAM:
 ################################################################
 # IF RUN DIRECTLY, MOSTLY FOR TESTING
 ################################################################
+
 
 if __name__ == "__main__":
     import argparse
