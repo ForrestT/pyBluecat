@@ -369,7 +369,7 @@ class BAM:
         return method, params, data
 
     @rest_call('post')
-    def assign_next_ip_address(self, parentId, hostname, macAddr=None, action='MAKE_STATIC', properties='', offset=None):
+    def assign_next_ip_address(self, parentId, hostname, macAddr=None, hostInfo='', action='MAKE_STATIC', properties='', offset=None):
         method = 'assignNextAvailableIP4Address'
         if isinstance(properties, dict):
             properties = self.prop_d2s(properties)
@@ -380,7 +380,7 @@ class BAM:
             'configurationId': self.config['id'],
             'parentId': parentId,
             'macAddress': macAddr,
-            'hostInfo': '',
+            'hostInfo': hostInfo,
             'action': action,
             'properties': properties
         }
@@ -462,7 +462,7 @@ class BAM:
         return method, params, data
 
     @rest_call('post')
-    def assign_ip_address(self, hostname, ipAddr, macAddr='', action='MAKE_STATIC', properties=''):
+    def assign_ip_address(self, hostname, ipAddr, macAddr='', hostInfo='', action='MAKE_STATIC', properties=''):
         method = 'assignIP4Address'
         if isinstance(properties, dict):
             properties = self.prop_d2s(properties)
@@ -471,7 +471,7 @@ class BAM:
             'configurationId': self.config['id'],
             'ip4Address': str(ipAddr),
             'macAddress': macAddr,
-            'hostInfo': '',
+            'hostInfo': hostInfo,
             'action': action,
             'properties': properties,
         }
