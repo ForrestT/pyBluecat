@@ -31,7 +31,7 @@ class BAM:
         'MAKE_DHCP_RESERVED'
     ]
 
-    def __init__(self, hostname=None, username=None, password=None, configName='Spectrum Health', loglevel='CRITICAL'):
+    def __init__(self, hostname=None, username=None, password=None, configName=None, loglevel='CRITICAL'):
         self.hostname = hostname
         self.username = username
         self.password = password
@@ -44,7 +44,7 @@ class BAM:
         self.baseUrl = 'https://{h}/Services/REST/v1/'.format(h=hostname)
         if all(param is not None for param in [hostname, username, password]):
             self.login(hostname, username, password)
-            self.config = self.getConfig()
+            self.config = self.getConfig(configName)
         else:
             self.config = None
 
@@ -171,8 +171,8 @@ class BAM:
         data = None
         return method, params, data
 
-    def getConfig(self):
-        return self.get_entity_by_name(0, 'Spectrum Health', 'Configuration')
+    def getConfig(self, configName):
+        return self.get_entity_by_name(0, configName, 'Configuration')
 
     @rest_call('get')
     def get_entities(self, parent_id, obj_type, start=0, count=1000):
