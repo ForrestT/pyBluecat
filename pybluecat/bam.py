@@ -260,6 +260,18 @@ class BAM:
     def search_ip_by_name(self, keyword, start=0, count=100):
         return self.search_by_object_types(keyword, 'IP4Address', start, count)
 
+    @rest_call('get')
+    def search_by_category(self, keyword, category, start=0, count=100):
+        method = 'searchByCategory'
+        params = {
+            'keyword': keyword,
+            'category': category,
+            'start': start,
+            'count': count
+        }
+        data = None
+        return method, params, data
+
     ################################################################
     # NETWORK STUFF
     ################################################################
@@ -281,6 +293,18 @@ class BAM:
 
     def get_block_by_cidr(self, parent_id, cidr):
         return self.get_entity_by_cidr(parent_id, cidr, 'IP4Block')
+
+    @rest_call('get')
+    def get_entity_by_range(self, parent_id, ipAddr1, ipAddr2, objType):
+        method = 'getEntityByRange'
+        params = {
+            'parentId': parent_id,
+            'address1': ipAddr1,
+            'address2': ipAddr2,
+            'type': objType,
+        }
+        data = None
+        return method, params, data
 
     @rest_call('get')
     def get_ip_ranged_by_ip(self, parentId, ipAddr, objType):
@@ -363,6 +387,80 @@ class BAM:
         data = None
         return method, params, data
 
+
+    @rest_call('post')
+    def add_tag(self, parentid, name, properties=''):
+        method = 'addTag'
+        if isinstance(properties, dict):
+            properties = self.prop_d2s(properties)
+        params = {
+            'parentId': parentid,
+            'name': name,
+            'properties': properties,
+        }
+        data = None
+        return method, params, data
+
+    @rest_call('put')
+    def linkEntities(self, entity1Id, entity2Id, properties=''):
+        method = 'linkEntities'
+        if isinstance(properties, dict):
+            properties = self.prop_d2s(properties)
+        params = {
+            'entity1Id': entity1Id,
+            'entity2Id': entity2Id,
+            'properties': properties,
+        }
+        data = None
+        return method, params, data
+
+    @rest_call('post')
+    def add_ip_block_by_cidr(self, parentId, CIDR, addrName, properties=''):
+        method = 'addIP4BlockByCIDR'
+        if isinstance(properties, dict):
+            properties = self.prop_d2s(properties)
+        properties += 'name={}|'.format(addrName)
+        params = {
+            'parentId': parentId,
+            'CIDR': CIDR,
+            'properties': properties
+        }
+        data = None
+        return method, params, data
+
+    @rest_call('post')
+    def add_ip_network_by_cidr(self, blockId, CIDR, name, descr, properties=''):
+        method = 'addIP4Network'
+        if isinstance(properties, dict):
+            properties = self.prop_d2s(properties)
+        properties += 'name={}|'.format(name)
+        properties += 'description={}|'.format(descr)
+        properties += 'gateway='
+        params = {
+            'blockId': blockId,
+            'CIDR': CIDR,
+            'properties': properties,
+        }
+        data = None
+        return method, params, data
+
+    @rest_call('post')
+    def add_device(self, name, deviceTypeId, deviceSubtypeId, ipv4Addresses, ipv6Addresses, properties=''):
+        method = 'addDevice'
+        if isinstance(properties, dict):
+            properties = self.prop_d2s(properties)
+        params = {
+            'configurationId': self.config['id'],
+            'name': name,
+            'deviceTypeId': str(deviceTypeId),
+            'deviceSubtypeId': str(deviceSubtypeId),
+            'ip4Addresses': str(ipv4Addresses),
+            'ipv6Addresses': str(ipv6Addresses),
+            'properties': properties,
+        }
+        data = None
+        return method, params, data
+
     @rest_call('post')
     def assign_ip_address(self, hostname, ipAddr, macAddr='', action='MAKE_STATIC', properties=''):
         method = 'assignIP4Address'
@@ -375,7 +473,7 @@ class BAM:
             'macAddress': macAddr,
             'hostInfo': '',
             'action': action,
-            'properties': properties
+            'properties': properties,
         }
         data = None
         return method, params, data
@@ -568,7 +666,6 @@ class BAM:
 ################################################################
 # IF RUN DIRECTLY, MOSTLY FOR TESTING
 ################################################################
-
 
 if __name__ == "__main__":
     import argparse
